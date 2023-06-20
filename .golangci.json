@@ -1,0 +1,22 @@
+{
+  "linters": {
+    "disable-all": true,
+    "enable": [
+      "goimports",
+      "errcheck",
+      "gosimple",
+      "govet",
+      "ineffassign",
+      "typecheck",
+      "unused",
+      "unparam",
+      "prealloc",
+      "noctx"
+    ]
+  },
+  "linters-settings": {
+    "unparam": {
+      "check-exported": true
+    }
+  }
+}
