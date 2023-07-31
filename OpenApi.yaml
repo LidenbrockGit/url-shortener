@@ -1,0 +1,346 @@
+openapi: 3.0.1
+info:
+  title: Url-shortener
+  version: 1.0.0
+components:
+  securitySchemes:
+    api_key:
+      type: "apiKey"
+      name: "api_key"
+      in: "header"
+  schemas:
+    link:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        user_id:
+          type: integer
+          format: int64
+        short_url:
+          type: string
+        full_url:
+          type: string
+        usage_count:
+          type: integer
+        created_at:
+          type: string
+    user:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        login:
+          type: string
+        password:
+          type: string
+        created_at:
+          type: string
+        deleted_at:
+          type: string
+tags:
+  - name: public
+    description: Публичные методы
+  - name: auth
+    description: Операции с сессией пользователя
+  - name: user
+    description: Операции с аккаунтом
+  - name: link
+    description: Операции с ссылками
+paths:
+  /use-url:
+    post:
+      tags:
+        - public
+      summary: Поиск полной ссылки для перехода
+      parameters:
+        - name: "short_url"
+          in: query
+          description: Короткий url по которому будет найден полный url
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/link'
+        204:
+          description: Не найдено
+          content: {}
+  /user/login:
+    post:
+      tags:
+        - auth
+      summary: Авторизация
+      description: Данный метод возвращает токен
+      parameters:
+        - name: "login"
+          in: query
+          description: Логин авторизации
+          required: true
+          schema:
+            type: string
+        - name: "password"
+          in: query
+          description: Пароль авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          description: Неправильный логин или пароль
+          content:
+            application/json:
+              schema:
+                type: string
+  /user/logout:
+    post:
+      tags:
+        - auth
+      summary: Выход из текущей сессии
+      security:
+        - api_key: []
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+  /links:
+    post:
+      summary: Добавление новой ссылки
+      tags:
+        - link
+      security:
+        - api_key: []
+      parameters:
+        - name: "body"
+          in: query
+          description: "Поля пользователя"
+          required: true
+          schema:
+            $ref: "#/components/schemas/link"
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/link"
+        400:
+          description: bad request
+          content: {}
+    get:
+      summary: Вывод ссылок пользователя
+      tags:
+        - link
+      security:
+        - api_key: []
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/link'
+  /links/{linkId}:
+    get:
+      summary: Вывод ссылки пользователя
+      tags:
+        - link
+      security:
+        - api_key: []
+      parameters:
+        - name: "linkId"
+          in: path
+          required: true
+          description: ID ссылки
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/link'
+    put:
+      summary: Обновление ссылки
+      tags:
+        - link
+      security:
+        - api_key: []
+      parameters:
+        - name: "linkId"
+          in: path
+          description: ID ссылки
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                short_url:
+                  type: string
+                  description: Update short_url of the element
+                full_url:
+                  type: string
+                  description: Update full_url of the element
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/link"
+        400:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    delete:
+      summary: Удаление ссылки
+      security:
+        - api_key: []
+      tags:
+        - link
+      parameters:
+        - name: "linkId"
+          in: path
+          description: ID ссылки
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        400:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /users:
+    post:
+      summary: Создание пользователя
+      tags:
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/user"
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                    format: int64
+        400:
+          description: bad request
+          content: {}
+  /users/{userId}:
+    get:
+      summary: Вывод данных пользователя
+      security:
+        - api_key: []
+      tags:
+        - user
+      parameters:
+        - name: "userId"
+          description: ID пользователя
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
+    put:
+      summary: Обновление пользователя
+      tags:
+        - user
+      security:
+        - api_key: []
+      parameters:
+        - name: "userId"
+          description: ID пользователя
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: Update name of the user
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        400:
+          description: bad request
+          content: {}
+    delete:
+      summary: Удаление пользователя
+      tags:
+        - user
+      security:
+        - api_key: []
+      parameters:
+        - name: "userId"
+          description: ID пользователя
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        400:
+          description: bad request
+          content: {}
