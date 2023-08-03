@@ -1,0 +1,14 @@
+quiet: False
+keeptree: True
+disable-version-string: True
+with-expecter: True
+dir: "./internal/mocks"
+mockname: "{{.InterfaceName}}"
+filename: "{{.MockName}}.go"
+outpkg: mocks
+packages:
+  github.com/LidenbrockGit/url-shortener/internal/usecases/repos/linkrepo:
+    interfaces:
+      Storage:
+        config:
+          with-expecter: True

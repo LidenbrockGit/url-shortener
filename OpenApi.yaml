@@ -13,11 +13,9 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
         user_id:
-          type: integer
-          format: int64
+          type: string
         short_url:
           type: string
         full_url:
@@ -30,8 +28,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
         name:
           type: string
         login:
@@ -172,8 +169,7 @@ paths:
           required: true
           description: ID ссылки
           schema:
-            type: integer
-            format: int64
+            type: string
       responses:
         200:
           description: successful operation
@@ -192,8 +188,7 @@ paths:
           in: path
           description: ID ссылки
           schema:
-            type: integer
-            format: int64
+            type: string
       requestBody:
         content:
           application/json:
@@ -233,8 +228,7 @@ paths:
           description: ID ссылки
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
       responses:
         200:
           description: successful operation
@@ -267,8 +261,7 @@ paths:
                 type: object
                 properties:
                   userId:
-                    type: integer
-                    format: int64
+                    type: string
         400:
           description: bad request
           content: {}
@@ -285,8 +278,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
       responses:
         200:
           description: successful operation
@@ -306,8 +298,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
       requestBody:
         content:
           application/json:
@@ -335,8 +326,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
       responses:
         200:
           description: successful operation

@@ -26,17 +26,17 @@ const (
 type Link struct {
 	CreatedAt  *string `json:"created_at,omitempty"`
 	FullUrl    *string `json:"full_url,omitempty"`
-	Id         *int64  `json:"id,omitempty"`
+	Id         *string `json:"id,omitempty"`
 	ShortUrl   *string `json:"short_url,omitempty"`
 	UsageCount *int    `json:"usage_count,omitempty"`
-	UserId     *int64  `json:"user_id,omitempty"`
+	UserId     *string `json:"user_id,omitempty"`
 }
 
 // User defines model for user.
 type User struct {
 	CreatedAt *string `json:"created_at,omitempty"`
 	DeletedAt *string `json:"deleted_at,omitempty"`
-	Id        *int64  `json:"id,omitempty"`
+	Id        *string `json:"id,omitempty"`
 	Login     *string `json:"login,omitempty"`
 	Name      *string `json:"name,omitempty"`
 	Password  *string `json:"password,omitempty"`
@@ -97,13 +97,13 @@ type ServerInterface interface {
 	PostLinks(c *gin.Context, params PostLinksParams)
 	// Удаление ссылки
 	// (DELETE /links/{linkId})
-	DeleteLinksLinkId(c *gin.Context, linkId int64)
+	DeleteLinksLinkId(c *gin.Context, linkId string)
 	// Вывод ссылки пользователя
 	// (GET /links/{linkId})
-	GetLinksLinkId(c *gin.Context, linkId int64)
+	GetLinksLinkId(c *gin.Context, linkId string)
 	// Обновление ссылки
 	// (PUT /links/{linkId})
-	PutLinksLinkId(c *gin.Context, linkId int64)
+	PutLinksLinkId(c *gin.Context, linkId string)
 	// Поиск полной ссылки для перехода
 	// (POST /use-url)
 	PostUseUrl(c *gin.Context, params PostUseUrlParams)
@@ -118,13 +118,13 @@ type ServerInterface interface {
 	PostUsers(c *gin.Context)
 	// Удаление пользователя
 	// (DELETE /users/{userId})
-	DeleteUsersUserId(c *gin.Context, userId int64)
+	DeleteUsersUserId(c *gin.Context, userId string)
 	// Вывод данных пользователя
 	// (GET /users/{userId})
-	GetUsersUserId(c *gin.Context, userId int64)
+	GetUsersUserId(c *gin.Context, userId string)
 	// Обновление пользователя
 	// (PUT /users/{userId})
-	PutUsersUserId(c *gin.Context, userId int64)
+	PutUsersUserId(c *gin.Context, userId string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -192,7 +192,7 @@ func (siw *ServerInterfaceWrapper) DeleteLinksLinkId(c *gin.Context) {
 	var err error
 
 	// ------------- Path parameter "linkId" -------------
-	var linkId int64
+	var linkId string
 
 	err = runtime.BindStyledParameter("simple", false, "linkId", c.Param("linkId"), &linkId)
 	if err != nil {
@@ -218,7 +218,7 @@ func (siw *ServerInterfaceWrapper) GetLinksLinkId(c *gin.Context) {
 	var err error
 
 	// ------------- Path parameter "linkId" -------------
-	var linkId int64
+	var linkId string
 
 	err = runtime.BindStyledParameter("simple", false, "linkId", c.Param("linkId"), &linkId)
 	if err != nil {
@@ -244,7 +244,7 @@ func (siw *ServerInterfaceWrapper) PutLinksLinkId(c *gin.Context) {
 	var err error
 
 	// ------------- Path parameter "linkId" -------------
-	var linkId int64
+	var linkId string
 
 	err = runtime.BindStyledParameter("simple", false, "linkId", c.Param("linkId"), &linkId)
 	if err != nil {
@@ -379,7 +379,7 @@ func (siw *ServerInterfaceWrapper) DeleteUsersUserId(c *gin.Context) {
 	var err error
 
 	// ------------- Path parameter "userId" -------------
-	var userId int64
+	var userId string
 
 	err = runtime.BindStyledParameter("simple", false, "userId", c.Param("userId"), &userId)
 	if err != nil {
@@ -405,7 +405,7 @@ func (siw *ServerInterfaceWrapper) GetUsersUserId(c *gin.Context) {
 	var err error
 
 	// ------------- Path parameter "userId" -------------
-	var userId int64
+	var userId string
 
 	err = runtime.BindStyledParameter("simple", false, "userId", c.Param("userId"), &userId)
 	if err != nil {
@@ -431,7 +431,7 @@ func (siw *ServerInterfaceWrapper) PutUsersUserId(c *gin.Context) {
 	var err error
 
 	// ------------- Path parameter "userId" -------------
-	var userId int64
+	var userId string
 
 	err = runtime.BindStyledParameter("simple", false, "userId", c.Param("userId"), &userId)
 	if err != nil {
@@ -495,28 +495,28 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"OXEZAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
