@@ -1,22 +1,26 @@
 package fullurlsearch
 
-import "github.com/LidenbrockGit/url-shortener/internal/entities/linkentity"
+import (
+	"context"
 
-type FullUrlFinder interface {
-	FullUrlFind(string) (linkentity.Link, error)
+	"github.com/LidenbrockGit/url-shortener/internal/entities/linkentity"
+)
+
+type FullUrlFind interface {
+	FullUrlFind(context.Context, string) (linkentity.Link, error)
 }
 
 type FullUrl struct {
-	storage FullUrlFinder
+	storage FullUrlFind
 }
 
-func NewFullUrl(s FullUrlFinder) FullUrl {
-	fu := FullUrl{
+func NewFullUrl(s FullUrlFind) *FullUrl {
+	fu := &FullUrl{
 		storage: s,
 	}
 	return fu
 }
 
-func (fu *FullUrl) FindByShort(shortUrl string) (linkentity.Link, error) {
-	return fu.storage.FullUrlFind(shortUrl)
+func (fu *FullUrl) FindByShort(ctx context.Context, shortUrl string) (linkentity.Link, error) {
+	return fu.storage.FullUrlFind(ctx, shortUrl)
 }

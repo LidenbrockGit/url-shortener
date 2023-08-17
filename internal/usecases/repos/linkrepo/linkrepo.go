@@ -12,7 +12,7 @@ const readChanSize = 512
 const readLimitWaitSec = 2
 
 type Storage interface {
-	Create(ctx context.Context, link linkentity.Link) (uuid.UUID, error)
+	Create(ctx context.Context, link linkentity.Link) (linkentity.Link, error)
 	Read(ctx context.Context, linkId uuid.UUID) (linkentity.Link, error)
 	ReadAll(ctx context.Context) (<-chan linkentity.Link, error)
 	Update(ctx context.Context, link linkentity.Link) error
@@ -23,14 +23,14 @@ type LinkRepo struct {
 	storage Storage
 }
 
-func NewLinkRepo(s Storage) LinkRepo {
-	l := LinkRepo{
+func NewLinkRepo(s Storage) *LinkRepo {
+	l := &LinkRepo{
 		storage: s,
 	}
 	return l
 }
 
-func (l *LinkRepo) Create(ctx context.Context, link linkentity.Link) (uuid.UUID, error) {
+func (l *LinkRepo) Create(ctx context.Context, link linkentity.Link) (linkentity.Link, error) {
 	return l.storage.Create(ctx, link)
 }
 

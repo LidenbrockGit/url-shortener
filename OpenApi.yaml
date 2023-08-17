@@ -4,10 +4,11 @@ info:
   version: 1.0.0
 components:
   securitySchemes:
-    api_key:
-      type: "apiKey"
-      name: "api_key"
-      in: "header"
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "API key to authorize requests."
   schemas:
     link:
       type: object
@@ -39,14 +40,53 @@ components:
           type: string
         deleted_at:
           type: string
+    userRegist:
+      type: object
+      required:
+        - name
+        - login
+        - password
+      properties:
+        name:
+          type: string
+        login:
+          type: string
+        password:
+          type: string
+    userLogin:
+      type: object
+      required:
+        - login
+        - password
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+    userAccount:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        login:
+          type: string
+    linkCreate:
+      type: object
+      properties:
+        short_url:
+          type: string
+        full_url:
+          type: string
 tags:
   - name: public
     description: Публичные методы
   - name: auth
     description: Операции с сессией пользователя
-  - name: user
+  - name: account
     description: Операции с аккаунтом
-  - name: link
+  - name: links
     description: Операции с ссылками
 paths:
   /use-url:
@@ -67,70 +107,113 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/link'
+                type: object
+                properties:
+                  fullUrl:
+                    type: string
         204:
           description: Не найдено
-          content: {}
-  /user/login:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /regist:
+    post:
+      tags:
+        - auth
+      summary: Регистрация
+      description: Регистрация пользователей
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/userRegist"
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  userId:
+                    type: string
+        400:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /login:
     post:
       tags:
         - auth
       summary: Авторизация
       description: Данный метод возвращает токен
-      parameters:
-        - name: "login"
-          in: query
-          description: Логин авторизации
-          required: true
-          schema:
-            type: string
-        - name: "password"
-          in: query
-          description: Пароль авторизации
-          required: true
-          schema:
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/userLogin"
       responses:
         200:
           description: successful operation
           content:
             application/json:
               schema:
-                type: string
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
         400:
           description: Неправильный логин или пароль
           content:
             application/json:
               schema:
-                type: string
-  /user/logout:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /logout:
     post:
       tags:
         - auth
       summary: Выход из текущей сессии
-      security:
-        - api_key: []
       responses:
         200:
           description: successful operation
           content:
             application/json:
               schema:
-                type: string
+                type: object
+                properties:
+                  message:
+                    type: string
   /links:
     post:
       summary: Добавление новой ссылки
       tags:
-        - link
+        - links
       security:
-        - api_key: []
-      parameters:
-        - name: "body"
-          in: query
-          description: "Поля пользователя"
-          required: true
-          schema:
-            $ref: "#/components/schemas/link"
+        - jwt: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/linkCreate"
       responses:
         200:
           description: successful operation
@@ -140,13 +223,19 @@ paths:
                 $ref: "#/components/schemas/link"
         400:
           description: bad request
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
     get:
       summary: Вывод ссылок пользователя
       tags:
-        - link
+        - links
       security:
-        - api_key: []
+        - jwt: []
       responses:
         200:
           description: successful operation
@@ -160,9 +249,9 @@ paths:
     get:
       summary: Вывод ссылки пользователя
       tags:
-        - link
+        - links
       security:
-        - api_key: []
+        - jwt: []
       parameters:
         - name: "linkId"
           in: path
@@ -180,9 +269,9 @@ paths:
     put:
       summary: Обновление ссылки
       tags:
-        - link
+        - links
       security:
-        - api_key: []
+        - jwt: []
       parameters:
         - name: "linkId"
           in: path
@@ -219,9 +308,9 @@ paths:
     delete:
       summary: Удаление ссылки
       security:
-        - api_key: []
+        - jwt: []
       tags:
-        - link
+        - links
       parameters:
         - name: "linkId"
           in: path
@@ -232,7 +321,13 @@ paths:
       responses:
         200:
           description: successful operation
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         400:
           description: bad request
           content:
@@ -242,63 +337,26 @@ paths:
                 properties:
                   message:
                     type: string
-  /users:
-    post:
-      summary: Создание пользователя
-      tags:
-        - user
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/user"
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  userId:
-                    type: string
-        400:
-          description: bad request
-          content: {}
-  /users/{userId}:
+  /account:
     get:
       summary: Вывод данных пользователя
       security:
-        - api_key: []
+        - jwt: []
       tags:
-        - user
-      parameters:
-        - name: "userId"
-          description: ID пользователя
-          in: path
-          required: true
-          schema:
-            type: string
+        - account
       responses:
         200:
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/user"
+                $ref: "#/components/schemas/userAccount"
     put:
       summary: Обновление пользователя
       tags:
-        - user
+        - account
       security:
-        - api_key: []
-      parameters:
-        - name: "userId"
-          description: ID пользователя
-          in: path
-          required: true
-          schema:
-            type: string
+        - jwt: []
       requestBody:
         content:
           application/json:
@@ -307,30 +365,50 @@ paths:
                 name:
                   type: string
                   description: Update name of the user
+                password:
+                  type: string
+                  description: Update password of the user
       responses:
         200:
           description: successful operation
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         400:
           description: bad request
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
     delete:
-      summary: Удаление пользователя
+      summary: Удаление аккаунта
       tags:
-        - user
+        - account
       security:
-        - api_key: []
-      parameters:
-        - name: "userId"
-          description: ID пользователя
-          in: path
-          required: true
-          schema:
-            type: string
+        - jwt: []
       responses:
         200:
           description: successful operation
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         400:
           description: bad request
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string

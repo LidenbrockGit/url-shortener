@@ -11,7 +11,7 @@
       "unused",
       "unparam",
       "prealloc",
-      "noctx"
+      "gci"
     ]
   },
   "linters-settings": {
