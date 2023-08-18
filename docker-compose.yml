@@ -1,0 +1,14 @@
+version: "3.7"
+
+services:
+  app:
+    image: url_shorter
+    build: .
+    container_name: url_shorter
+    restart: always
+    ports:
+      - 8888:8888
+    volumes:
+      - type: bind
+        source: ./config.json
+        target: /app/config.json
