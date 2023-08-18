@@ -2,19 +2,19 @@ package auth
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/LidenbrockGit/url-shortener/internal/entities/userentity"
 	"github.com/LidenbrockGit/url-shortener/internal/infrastructure/api/tools/jwttool"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 type UserSearch func(userId string) (userentity.User, error)
 
 func GinAuthMW(ctx *gin.Context, us UserSearch) {
 	ok := func() bool {
-		jwtKey := []byte(viper.GetString("jwt_key"))
+		jwtKey := []byte(os.Getenv("JWT_KEY"))
 		payload, err := jwttool.ParseJWT(getAuthToken(ctx), jwtKey)
 		if err != nil {
 			return false

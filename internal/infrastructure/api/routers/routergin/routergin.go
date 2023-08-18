@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/LidenbrockGit/url-shortener/internal/entities/linkentity"
 	"github.com/LidenbrockGit/url-shortener/internal/entities/userentity"
@@ -13,7 +14,6 @@ import (
 	"github.com/LidenbrockGit/url-shortener/internal/infrastructure/api/tools/jwttool"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/spf13/viper"
 )
 
 var _ ServerInterface = &Router{}
@@ -235,7 +235,7 @@ func (r *Router) PostLogin(ctx *gin.Context) {
 		return
 	}
 
-	jwtKey := []byte(viper.GetString("jwt_key"))
+	jwtKey := []byte(os.Getenv("JWT_KEY"))
 	jwt, err := jwttool.GenerateJWT(gin.H{"userId": user.Id.String()}, jwtKey)
 	if err != nil {
 		log.Println(err)
