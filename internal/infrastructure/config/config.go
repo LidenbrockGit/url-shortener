@@ -7,8 +7,7 @@ import (
 )
 
 func init() {
-	viper.AddConfigPath("../../..")
-	viper.SetConfigFile("config.json")
+	viper.SetConfigFile("config/config.json")
 
 	err := viper.ReadInConfig()
 	if err != nil {

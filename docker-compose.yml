@@ -10,5 +10,5 @@ services:
       - 8888:8888
     volumes:
       - type: bind
-        source: ./config.json
-        target: /app/config.json
+        source: ./config/config.json
+        target: /app/config/config.json
