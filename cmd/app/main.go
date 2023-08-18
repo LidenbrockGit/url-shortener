@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"os/signal"
 	"syscall"
 
@@ -32,7 +33,7 @@ func main() {
 		Fullurlsearch: fullUrlSearch,
 	}
 	router := routergin.NewRouter(hds)
-	server := defserver.NewServer(":443", router)
+	server := defserver.NewServer(":"+os.Getenv("PORT"), router)
 	server.Start()
 
 	<-ctx.Done()

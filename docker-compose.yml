@@ -7,7 +7,7 @@ services:
     container_name: url_shorter
     restart: always
     ports:
-      - 8000:443
+      - 8000:${PORT}
     volumes:
       - type: bind
         source: ./config/config.json
