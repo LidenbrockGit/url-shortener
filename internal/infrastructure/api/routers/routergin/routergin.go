@@ -198,7 +198,7 @@ func (r *Router) PutLinksLinkId(ctx *gin.Context, linkId string) {
 	})
 }
 
-func (r *Router) PostUseUrl(ctx *gin.Context, params PostUseUrlParams) {
+func (r *Router) GetUseUrl(ctx *gin.Context, params GetUseUrlParams) {
 	fullUrl, err := r.handlers.UseUrl(params.ShortUrl)
 	if err != nil {
 		ctx.JSON(http.StatusNoContent, gin.H{"message": err.Error()})

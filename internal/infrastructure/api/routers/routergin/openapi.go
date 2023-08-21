@@ -76,8 +76,8 @@ type PutLinksLinkIdJSONBody struct {
 	ShortUrl *string `json:"short_url,omitempty"`
 }
 
-// PostUseUrlParams defines parameters for PostUseUrl.
-type PostUseUrlParams struct {
+// GetUseUrlParams defines parameters for GetUseUrl.
+type GetUseUrlParams struct {
 	// ShortUrl Короткий url по которому будет найден полный url
 	ShortUrl string `form:"short_url" json:"short_url"`
 }
@@ -133,8 +133,8 @@ type ServerInterface interface {
 	// (POST /regist)
 	PostRegist(c *gin.Context)
 	// Поиск полной ссылки для перехода
-	// (POST /use-url)
-	PostUseUrl(c *gin.Context, params PostUseUrlParams)
+	// (GET /use-url)
+	GetUseUrl(c *gin.Context, params GetUseUrlParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -338,13 +338,13 @@ func (siw *ServerInterfaceWrapper) PostRegist(c *gin.Context) {
 	siw.Handler.PostRegist(c)
 }
 
-// PostUseUrl operation middleware
-func (siw *ServerInterfaceWrapper) PostUseUrl(c *gin.Context) {
+// GetUseUrl operation middleware
+func (siw *ServerInterfaceWrapper) GetUseUrl(c *gin.Context) {
 
 	var err error
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params PostUseUrlParams
+	var params GetUseUrlParams
 
 	// ------------- Required query parameter "short_url" -------------
 
@@ -368,7 +368,7 @@ func (siw *ServerInterfaceWrapper) PostUseUrl(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PostUseUrl(c, params)
+	siw.Handler.GetUseUrl(c, params)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -409,7 +409,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.POST(options.BaseURL+"/login", wrapper.PostLogin)
 	router.POST(options.BaseURL+"/logout", wrapper.PostLogout)
 	router.POST(options.BaseURL+"/regist", wrapper.PostRegist)
-	router.POST(options.BaseURL+"/use-url", wrapper.PostUseUrl)
+	router.GET(options.BaseURL+"/use-url", wrapper.GetUseUrl)
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
@@ -433,11 +433,11 @@ var swaggerSpec = []string{
 	"/JbpU5M3lFTBlB3B19mVBs8MvMC+2k+uOsSsUzxWuxirVxjThKHnhrQ7M6uUUPpcsQollD8HrUAILZtZ",
 	"k0n/GXi3qOXh79jHd5RkPMaBLpspFEgj/4UDHBk0ntTVWO0mtTXBbI7NX/CYsKF2cYCnGKsfcFC+foSy",
 	"k+PRT4ruHEmdrPnHy5Vouh+plwl5Bnhq6L4zVAfqFfa1pMQ+0RUHJaoWIsPzl8Zqqv6BfUqJ2lP7mpY6",
-	"yjP6He1ZSdL0PXN1LE03uFGakh/rrdssTXPYVaKiGmGhgDtpL59Nvg0BG9xdpHrwN033sdqn3oNnBikA",
-	"gqKBQz2qZ/FCHRh4pA7wRDcQHGGMZ/QL1RUN3LTehHpLrZyeh8B7uXTKJcjN3XVIMW0s+TeT5QF1r37/",
-	"Rgt/KR04ngbWWxwTrCYvJVp9nE2J7ROS1rSgr3axn9S/0vtwEG65jk0AjCaDl8D0Vh3gEXUZ9aPGQ78g",
-	"RdRhjoXUWGResvAmdUHjHweG2itWXCrAc+4FqXXNlOVsTz2Ij/GiYCZ7hl7Sy0k4Y7zQvaFwZxAsakZ/",
-	"BwAA///4c3Tg3hwAAA==",
+	"yjP6He1ZSdL0PXN1LE03uFGakh/rrdssTXPYVaKiGmGhgDtpL5+lQzcEbHB3kebB3zTZx2qfOg+eGdT/",
+	"CYgGDvWonsULdWDgkTrAE90+cIQxntEvVFU0bNNqE+ottW56HgLv5cIpFyA3d9MhvbSx5F9MlofTvfr9",
+	"Gy37pXTgeBpWb3FMoJq8k2jtcTYltU9IWNOCvtrFflL9Sq/DQbjlOjbBL5oMXgLTW3WAR9Rj1I8aD/2C",
+	"EFGHORZSY5F5ycKb1AWNfhwYaq9Yb6n8zrkVpNY1T5azPfUcPsaLgpnsEXpJLyfhjPFCd4bCjUGwqBn9",
+	"HQAA///Fs6uX3BwAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

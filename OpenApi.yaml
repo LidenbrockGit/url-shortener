@@ -90,7 +90,7 @@ tags:
     description: Операции с ссылками
 paths:
   /use-url:
-    post:
+    get:
       tags:
         - public
       summary: Поиск полной ссылки для перехода
