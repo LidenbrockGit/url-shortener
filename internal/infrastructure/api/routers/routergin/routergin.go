@@ -54,34 +54,39 @@ func (r *Router) GetLinks(ctx *gin.Context) {
 		return
 	}
 
-	var linkJson struct {
-		Id         string `json:"id"`
-		UserId     string `json:"userId"`
-		ShortUrl   string `json:"shortUrl"`
-		FullUrl    string `json:"fullUrl"`
-		UsageCount int    `json:"usageCount"`
-		CreatedAt  string `json:"createdAt"`
-	}
+	var linkJson Link
 
 	encoder := json.NewEncoder(ctx.Writer)
 
 	ctx.Status(http.StatusOK)
 	ctx.Header("content-type", "application/json")
-	_, _ = ctx.Writer.WriteString("{")
+	_, _ = ctx.Writer.WriteString("[")
 	defer func() {
-		_, _ = ctx.Writer.WriteString("}")
+		_, _ = ctx.Writer.WriteString("]")
 	}()
-	for link := range chIn {
+
+	for i := 0; ; i++ {
+		link, ok := <-chIn
+		if !ok {
+			break
+		}
 		if link.UserId != currentUser.Id {
 			continue
 		}
+		if i != 0 {
+			_, _ = ctx.Writer.WriteString(",")
+		}
 
-		linkJson.Id = link.Id.String()
-		linkJson.UserId = link.UserId.String()
-		linkJson.ShortUrl = link.ShortUrl
-		linkJson.FullUrl = link.FullUrl
-		linkJson.UsageCount = link.UsageCount
-		linkJson.CreatedAt = link.CreatedAt.String()
+		linkId := link.Id.String()
+		userId := link.UserId.String()
+		createdAt := link.CreatedAt.String()
+
+		linkJson.Id = &linkId
+		linkJson.UserId = &userId
+		linkJson.ShortUrl = &link.ShortUrl
+		linkJson.FullUrl = &link.FullUrl
+		linkJson.UsageCount = &link.UsageCount
+		linkJson.CreatedAt = &createdAt
 		_ = encoder.Encode(linkJson)
 	}
 }

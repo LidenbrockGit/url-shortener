@@ -302,6 +302,53 @@ func TestUseUrl(t *testing.T) {
 	})
 }
 
+func TestGetLinks(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration tests")
+	}
+
+	t.Run("Successful get users link", func(t *testing.T) {
+		login := createNewAcc()
+		token := loginNewAcc(login)
+
+		// Request create url
+		r, _ := http.NewRequest("POST", virtualServer.URL+"/links", strings.NewReader(`{
+			"short_url": "example",
+			"full_url": "http://example.com"
+		}`))
+		r.Header.Set("Authorization", "Bearer "+token)
+		_, _ = httpClient.Do(r)
+
+		// Get links request
+		r, _ = http.NewRequest("GET", virtualServer.URL+"/links", nil)
+		r.Header.Set("Authorization", "Bearer "+token)
+		resp, err := httpClient.Do(r)
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		// Check response
+		if !assert.Equal(t, http.StatusOK, resp.StatusCode, "status must be 200") {
+			return
+		}
+		decoder := json.NewDecoder(resp.Body)
+		var linksData []struct {
+			Id         string `json:"id"`
+			UserId     string `json:"user_id"`
+			ShortUrl   string `json:"short_url"`
+			FullUrl    string `json:"full_url"`
+			UsageCount int    `json:"usage_count"`
+			CreatedAt  string `json:"created_at"`
+		}
+		if !assert.NoError(t, decoder.Decode(&linksData)) {
+			return
+		}
+		if !assert.Equal(t, "http://example.com", linksData[0].FullUrl) {
+			return
+		}
+	})
+}
+
 func newVirtualServer() *httptest.Server {
 	gin.SetMode(gin.TestMode)
 
