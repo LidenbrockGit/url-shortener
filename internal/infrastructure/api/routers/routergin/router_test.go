@@ -307,7 +307,7 @@ func TestGetLinks(t *testing.T) {
 		t.Skip("skipping integration tests")
 	}
 
-	t.Run("Successful get users link", func(t *testing.T) {
+	t.Run("Successful get users links", func(t *testing.T) {
 		login := createNewAcc()
 		token := loginNewAcc(login)
 
@@ -370,6 +370,49 @@ func TestPostLinks(t *testing.T) {
 		}
 
 		if !generalCheck(t, resp, http.StatusOK) {
+			return
+		}
+	})
+}
+
+func TestGetLinksLinkId(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration tests")
+	}
+
+	t.Run("Successful get users link", func(t *testing.T) {
+		login := createNewAcc()
+		token := loginNewAcc(login)
+
+		// Request create url
+		r, _ := http.NewRequest("POST", virtualServer.URL+"/links", strings.NewReader(`{
+			"short_url": "example",
+			"full_url": "http://example.com"
+		}`))
+		r.Header.Set("Authorization", "Bearer "+token)
+		resp, _ := httpClient.Do(r)
+		decoder := json.NewDecoder(resp.Body)
+		newLink := Link{}
+		_ = decoder.Decode(&newLink)
+
+		// Get link request
+		r, _ = http.NewRequest("GET", virtualServer.URL+"/links/"+(*newLink.Id), nil)
+		r.Header.Set("Authorization", "Bearer "+token)
+		resp, err := httpClient.Do(r)
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		// Check response
+		if !assert.Equal(t, http.StatusOK, resp.StatusCode, "status must be 200") {
+			return
+		}
+		decoder = json.NewDecoder(resp.Body)
+		link := Link{}
+		if !assert.NoError(t, decoder.Decode(&link)) {
+			return
+		}
+		if !assert.Equal(t, newLink, link) {
 			return
 		}
 	})
