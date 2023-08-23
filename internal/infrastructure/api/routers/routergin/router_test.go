@@ -349,6 +349,32 @@ func TestGetLinks(t *testing.T) {
 	})
 }
 
+func TestPostLinks(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration tests")
+	}
+
+	t.Run("Successful create link", func(t *testing.T) {
+		login := createNewAcc()
+		token := loginNewAcc(login)
+
+		// Request create url
+		r, _ := http.NewRequest("POST", virtualServer.URL+"/links", strings.NewReader(`{
+			"short_url": "example",
+			"full_url": "http://example.com"
+		}`))
+		r.Header.Set("Authorization", "Bearer "+token)
+		resp, err := httpClient.Do(r)
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !generalCheck(t, resp, http.StatusOK) {
+			return
+		}
+	})
+}
+
 func newVirtualServer() *httptest.Server {
 	gin.SetMode(gin.TestMode)
 
